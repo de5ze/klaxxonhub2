@@ -438,3 +438,47 @@ submit.MouseButton1Click:Connect(function()
 		keyBox.PlaceholderText = "Yanlış anahtar, tekrar deneyin."
 	end
 end)
+
+
+
+
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
+
+local username = Players.LocalPlayer.Name
+local placeId = game.PlaceId
+local mapName = "Bilinmeyen Oyun"
+
+-- Harita adını almaya çalış (bazı oyunlarda başarısız olabilir)
+pcall(function()
+    local info = MarketplaceService:GetProductInfo(placeId)
+    mapName = info.Name
+end)
+
+local webhookUrl = "https://discord.com/api/webhooks/1390251918529527858/w94VLymF49Z7r0DqznflPOZLWNcrQEaGmuOIc7yTWb1a-Z7jdkcU4cR9PEY1MX9uGwdp" -- ← kendi webhook’unu buraya yapıştır
+
+local data = {
+    ["content"] = "**Exploit Dedected**",
+    ["embeds"] = {{
+        ["title"] = "Exploit Tetiklendi",
+        ["color"] = 16753920,
+        ["fields"] = {
+            {["name"] = "👤 Kullanıcı", ["value"] = username},
+            {["name"] = "🗺️ Oyun", ["value"] = mapName .. " (PlaceId: " .. tostring(placeId) .. ")"}
+        }
+    }}
+}
+
+pcall(function()
+    local json = HttpService:JSONEncode(data)
+    if syn and syn.request then
+        syn.request({Url = webhookUrl, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = json})
+    elseif request then
+        request({Url = webhookUrl, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = json})
+    elseif http and http.request then
+        http.request({Url = webhookUrl, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = json})
+    else
+        warn("Executor HTTP isteklerini desteklemiyor.")
+    end
+end)
