@@ -9,7 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
-local requiredKey = "KlaxxonHUB39X39"
+local requiredKey = "De5zePasa39"
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "KlaxxonHub"
