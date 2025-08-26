@@ -14,6 +14,7 @@ gui.ResetOnSpawn = false
 local reachEnabled = false
 local reachSize = 10 -- default reach
 local mainUI
+local hidden = false -- Z toggle durumu
 
 --// INTRO LOADING BAR
 local function showIntro()
@@ -67,6 +68,9 @@ local function extendSwordHitbox()
 					box.Adornee = handle
 					box.LineThickness = 0.05
 					box.Color3 = Color3.new(1, 0, 0)
+					box.Visible = not hidden
+				else
+					handle.Box.Visible = not hidden
 				end
 			end
 		end
@@ -135,7 +139,7 @@ local function buildGUI()
 	end)
 
 	local credits = Instance.new("TextLabel", mainUI)
-	credits.Text = "Made by Anas"
+	credits.Text = "Made by KLAXXON"
 	credits.Size = UDim2.new(1, 0, 0, 25)
 	credits.Position = UDim2.new(0, 0, 1, -25)
 	credits.TextColor3 = Color3.fromRGB(180, 180, 180)
@@ -151,11 +155,25 @@ local function buildGUI()
 	end)
 end
 
---// TOGGLE GUI HOTKEY
+--// Z TUŞU: GUI + SelectionBox toggle
 UserInputService.InputBegan:Connect(function(input, gpe)
-	if not gpe and input.KeyCode == Enum.KeyCode.G then
+	if not gpe and input.KeyCode == Enum.KeyCode.Z then
+		hidden = not hidden
+
 		if mainUI then
-			mainUI.Visible = not mainUI.Visible
+			mainUI.Visible = not hidden
+		end
+
+		local char = player.Character
+		if char then
+			for _, tool in pairs(char:GetChildren()) do
+				if tool:IsA("Tool") and tool:FindFirstChild("Handle") then
+					local handle = tool.Handle
+					if handle:FindFirstChild("Box") then
+						handle.Box.Visible = not hidden
+					end
+				end
+			end
 		end
 	end
 end)
