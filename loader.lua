@@ -7,7 +7,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
 local MarketplaceService = game:GetService("MarketplaceService")
-local TeleportService = game:GetService("TeleportService")
 
 -- Şifre
 local requiredKey = "De5zePasa39"
@@ -52,7 +51,7 @@ local function makeDraggable(frame)
 end
 
 -- ---------- Webhook Log Fonksiyonu ----------
-local webhookUrl = "https://discord.com/api/webhooks/1390251918529527858/w94VLymF49Z7r0DqznflPOZLWNcrQEaGmuOIc7yTWb1a-Z7jdkcU4cR9PEY1MX9uGwdp" -- Buraya kendi Discord webhook URL'nizi koyun
+local webhookUrl = "https://discord.com/api/webhooks/1390251918529527858/w94VLymF49Z7r0DqznflPOZLWNcrQEaGmuOIc7yTWb1a-Z7jdkcU4cR9PEY1MX9uGwdp"
 local function sendWebhookLog(scriptName)
 	local username = player.Name
 	local placeId = game.PlaceId
@@ -225,6 +224,35 @@ local function THOScript() local remote=ReplicatedStorage:WaitForChild("RewardEv
 local function TAFScript() local remote=ReplicatedStorage:WaitForChild("RewardEvent"); for i=1,30 do remote:FireServer(); task.wait(0.1) end end
 local function TTAScript() local remote=ReplicatedStorage:WaitForChild("Cark"); for i=1,30 do remote:FireServer(); task.wait(0.1) end end
 
+-- AntiCheatBypass
+local function AntiCheatBypass()
+	local player = game:GetService("Players").LocalPlayer
+
+	local function recursiveDeleteAntiExpo(obj)
+	    for _, child in ipairs(obj:GetChildren()) do
+	        if child:IsA("LocalScript") and child.Name == "AntiExpo" then
+	            child:Destroy()
+	        else
+	            recursiveDeleteAntiExpo(child)
+	        end
+	    end
+	end
+
+	local targets = {
+	    player:WaitForChild("PlayerScripts"),
+	    player:WaitForChild("StarterGear", 1),
+	    player:WaitForChild("Backpack"),
+	    player:WaitForChild("PlayerGui"),
+	    player.Character or player.CharacterAdded:Wait()
+	}
+
+	for _, container in ipairs(targets) do
+	    if container then
+	        recursiveDeleteAntiExpo(container)
+	    end
+	end
+end
+
 -- Movement
 local flying,noclip=false,false
 local flyConnection,noclipConnection
@@ -275,6 +303,11 @@ local function stopNoclip()
 	if char then for _,v in pairs(char:GetChildren()) do if v:IsA("BasePart") then v.CanCollide=true end end end
 end
 local function toggleNoclip() if noclip then stopNoclip() else startNoclip() end end
+
+-- Remotespy
+local function startRemotespy()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/bumble33/123321/refs/heads/main/45163"))()
+end
 
 -- ESP
 local espEnabled=false
@@ -335,31 +368,23 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
--- Geçiş Scripti
-local function teleportExample()
-	local places={12345678,87654321} -- Örnek placeId
-	local nextPlace=places[math.random(1,#places)]
-	TeleportService:Teleport(nextPlace,player)
-end
-
 -- ---------- Sekmeler ----------
 createTab("Kamp",function(frame)
 	createContentButton(frame,"THO Scripti",THOScript)
 	createContentButton(frame,"TAF Scripti",TAFScript)
 	createContentButton(frame,"TTA Scripti",TTAScript)
+	createContentButton(frame,"AntiCheatBypass",AntiCheatBypass)
 end)
 createTab("Movement",function(frame)
 	createContentButton(frame,"Fly Aç/Kapat",toggleFly)
 	createContentButton(frame,"Noclip Aç/Kapat",toggleNoclip)
+	createContentButton(frame,"Remotespy Başlat",startRemotespy)
 end)
 createTab("ESP",function(frame)
 	createContentButton(frame,"ESP Aç/Kapat",toggleESP)
 end)
 createTab("Aimbot",function(frame)
 	createContentButton(frame,"Aimbot Aç/Kapat",function() aimbotEnabled=not aimbotEnabled if not aimbotEnabled then aiming=false aimbotTarget=nil end end)
-end)
-createTab("Geçiş Scripti",function(frame)
-	createContentButton(frame,"Rastgele Teleport",teleportExample)
 end)
 
 -- Giriş butonu
