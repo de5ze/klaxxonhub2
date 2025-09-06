@@ -397,3 +397,4 @@ submit.MouseButton1Click:Connect(function()
 		keyBox.PlaceholderText="Yanlış anahtar"
 	end
 end)
+
