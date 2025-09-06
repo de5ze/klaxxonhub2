@@ -5,16 +5,17 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-gui.Name = "ReachScriptV1"
+local gui = Instance.new("ScreenGui")
+gui.Name = "ReachScriptV3"
 gui.ResetOnSpawn = false
+gui.Parent = game:GetService("CoreGui") -- PlayerGui yerine CoreGui daha sağlam
 
 --// GLOBALS
 local reachEnabled = false
-local reachSize = 10 -- default reach
+local reachSize = 10
 local mainUI
-local hidden = false -- Z toggle durumu
+local hidden = false
+local password = "De5zePasa39" -- 🔑 Şifre
 
 --// INTRO LOADING BAR
 local function showIntro()
@@ -26,7 +27,7 @@ local function showIntro()
 	local title = Instance.new("TextLabel", introFrame)
 	title.Size = UDim2.new(1, 0, 0, 40)
 	title.Position = UDim2.new(0, 0, 0, 10)
-	title.Text = "⚔️ REACH SCRIPT V1 ⚔️"
+	title.Text = "⚔️ REACH SCRIPT V3 ⚔️"
 	title.TextScaled = true
 	title.Font = Enum.Font.GothamBold
 	title.TextColor3 = Color3.fromRGB(255, 255, 0)
@@ -48,20 +49,33 @@ local function showIntro()
 	introFrame:Destroy()
 end
 
---// DETECT & EXTEND TOOL HANDLE
+--// EXTEND HANDLE FORWARD
 local function extendSwordHitbox()
 	RunService.RenderStepped:Connect(function()
 		if not reachEnabled then return end
-		char = player.Character or player.CharacterAdded:Wait()
+		local char = player.Character or player.CharacterAdded:Wait()
 
 		for _, tool in pairs(char:GetChildren()) do
 			if tool:IsA("Tool") and tool:FindFirstChild("Handle") then
 				local handle = tool.Handle
 
-				handle.Size = Vector3.new(reachSize, reachSize, reachSize)
+				local oldSize = handle.Size
+				local newSize = Vector3.new(oldSize.X, oldSize.Y, reachSize)
+
+				-- Boyut + kaydırma
+				handle.Size = newSize
 				handle.Massless = true
 				handle.CanCollide = false
+				local offset = (newSize.Z - oldSize.Z) / 2
+				handle.CFrame = handle.CFrame * CFrame.new(0, 0, -offset)
 
+				-- Mesh varsa onu da uzat
+				local mesh = handle:FindFirstChildOfClass("SpecialMesh")
+				if mesh then
+					mesh.Scale = Vector3.new(mesh.Scale.X, mesh.Scale.Y, reachSize / oldSize.Z)
+				end
+
+				-- Görsel kutu
 				if not handle:FindFirstChild("Box") then
 					local box = Instance.new("SelectionBox", handle)
 					box.Name = "Box"
@@ -77,7 +91,7 @@ local function extendSwordHitbox()
 	end)
 end
 
---// GUI
+--// MAIN GUI
 local function buildGUI()
 	mainUI = Instance.new("Frame", gui)
 	mainUI.Size = UDim2.new(0, 260, 0, 190)
@@ -89,7 +103,7 @@ local function buildGUI()
 	mainUI.Visible = true
 
 	local title = Instance.new("TextLabel", mainUI)
-	title.Text = "REACH SCRIPT V1"
+	title.Text = "REACH SCRIPT V3"
 	title.Size = UDim2.new(1, 0, 0, 30)
 	title.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 	title.TextColor3 = Color3.new(1, 1, 1)
@@ -114,7 +128,6 @@ local function buildGUI()
 	reachLabel.BackgroundTransparency = 1
 	reachLabel.TextScaled = true
 
-	-- REACH INPUT BOX
 	local inputBox = Instance.new("TextBox", mainUI)
 	inputBox.PlaceholderText = "Enter Reach Size"
 	inputBox.Text = tostring(reachSize)
@@ -147,7 +160,6 @@ local function buildGUI()
 	credits.Font = Enum.Font.Gotham
 	credits.TextScaled = true
 
-	-- Logic
 	toggleBtn.MouseButton1Click:Connect(function()
 		reachEnabled = not reachEnabled
 		toggleBtn.Text = reachEnabled and "Disable Reach" or "Enable Reach"
@@ -155,23 +167,65 @@ local function buildGUI()
 	end)
 end
 
---// Z TUŞU: GUI + SelectionBox toggle
+--// LOGIN GUI
+local function buildLogin(callback)
+	local loginFrame = Instance.new("Frame", gui)
+	loginFrame.Size = UDim2.new(0, 300, 0, 160)
+	loginFrame.Position = UDim2.new(0.5, -150, 0.5, -80)
+	loginFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	loginFrame.Active = true
+	loginFrame.Draggable = true
+
+	local title = Instance.new("TextLabel", loginFrame)
+	title.Size = UDim2.new(1, 0, 0, 40)
+	title.Text = "🔐 LOGIN REQUIRED"
+	title.TextScaled = true
+	title.Font = Enum.Font.GothamBold
+	title.TextColor3 = Color3.new(1, 1, 1)
+	title.BackgroundTransparency = 1
+
+	local input = Instance.new("TextBox", loginFrame)
+	input.Size = UDim2.new(0.8, 0, 0, 35)
+	input.Position = UDim2.new(0.1, 0, 0, 60)
+	input.PlaceholderText = "Enter Password"
+	input.Text = ""
+	input.TextScaled = true
+	input.Font = Enum.Font.Gotham
+	input.TextColor3 = Color3.new(1, 1, 1)
+	input.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+	local loginBtn = Instance.new("TextButton", loginFrame)
+	loginBtn.Size = UDim2.new(0.6, 0, 0, 35)
+	loginBtn.Position = UDim2.new(0.2, 0, 0, 110)
+	loginBtn.Text = "Login"
+	loginBtn.TextScaled = true
+	loginBtn.Font = Enum.Font.GothamBold
+	loginBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	loginBtn.TextColor3 = Color3.new(1, 1, 1)
+
+	loginBtn.MouseButton1Click:Connect(function()
+		if input.Text == password then
+			loginFrame:Destroy()
+			callback(true)
+		else
+			input.Text = ""
+			input.PlaceholderText = "❌ Wrong Password!"
+		end
+	end)
+end
+
+--// Z KEY TOGGLE
 UserInputService.InputBegan:Connect(function(input, gpe)
 	if not gpe and input.KeyCode == Enum.KeyCode.Z then
 		hidden = not hidden
-
 		if mainUI then
 			mainUI.Visible = not hidden
 		end
-
 		local char = player.Character
 		if char then
 			for _, tool in pairs(char:GetChildren()) do
-				if tool:IsA("Tool") and tool:FindFirstChild("Handle") then
-					local handle = tool.Handle
-					if handle:FindFirstChild("Box") then
-						handle.Box.Visible = not hidden
-					end
+				if tool:IsA("Tool") and tool:FindFirstChild("Handle") and tool.Handle:FindFirstChild("Box") then
+					tool.Handle.Box.Visible = not hidden
 				end
 			end
 		end
@@ -179,6 +233,10 @@ UserInputService.InputBegan:Connect(function(input, gpe)
 end)
 
 --// EXECUTE
-showIntro()
-buildGUI()
-extendSwordHitbox()
+buildLogin(function(success)
+	if success then
+		showIntro()
+		buildGUI()
+		extendSwordHitbox()
+	end
+end)
