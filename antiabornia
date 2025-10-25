@@ -1,0 +1,87 @@
+-- LocalScript (örneğin StarterPlayerScripts içine koy)
+
+local GROUP_ID = 311344
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+if not player then return end
+
+-- Kontrol: oyuncu belirtilen grupta mı?
+local success, inGroup = pcall(function()
+	return player:IsInGroup(GROUP_ID)
+end)
+
+if not success or not inGroup then
+	-- Grup yoksa hiç bir şey yapma
+	return
+end
+
+-- Oluşturulan GUI (senin verdiğin tasarıma sadık)
+local ABORNIAFRAME = Instance.new("ScreenGui")
+ABORNIAFRAME.Name = "ABORNIAFRAME"
+ABORNIAFRAME.Parent = player:WaitForChild("PlayerGui")
+ABORNIAFRAME.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local Frame = Instance.new("Frame")
+Frame.Parent = ABORNIAFRAME
+Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame.BackgroundTransparency = 1.000
+Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Frame.BorderSizePixel = 0
+Frame.Size = UDim2.new(0, 1244, 0, 551)
+Frame.Position = UDim2.new(0.5, -622, 0.5, -275) -- ortala (isteğe göre düzenle)
+
+local TextLabel = Instance.new("TextLabel")
+TextLabel.Parent = Frame
+TextLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.BackgroundTransparency = 1.000
+TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+TextLabel.BorderSizePixel = 0
+TextLabel.Position = UDim2.new(0.5, 0, 0.224976227, 0)
+TextLabel.Size = UDim2.new(1, 0, 0, 110)
+TextLabel.Font = Enum.Font.Highway
+TextLabel.Text = "ABORNIA DETECTED"
+TextLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- daha görünür olması için kırmızı yaptım
+TextLabel.TextSize = 68.000
+TextLabel.TextTransparency = 0
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0.200000003, 8)
+UICorner.Parent = TextLabel
+
+local TextLabel_2 = Instance.new("TextLabel")
+TextLabel_2.Parent = Frame
+TextLabel_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+TextLabel_2.BorderSizePixel = 0
+TextLabel_2.Position = UDim2.new(0.275723487, 0, 0.480769217, 0)
+TextLabel_2.Size = UDim2.new(0, 558, 0, 35)
+TextLabel_2.Font = Enum.Font.SourceSans
+TextLabel_2.Text = "You cannot participate in this game because you are in the Abornia clan. Please leave the clan and try again."
+TextLabel_2.TextColor3 = Color3.fromRGB(0, 0, 0)
+TextLabel_2.TextSize = 14.000
+TextLabel_2.TextTransparency = 0 -- görünür yap
+
+local UICorner_4 = Instance.new("UICorner")
+UICorner_4.CornerRadius = UDim.new(0.200000003, 8)
+UICorner_4.Parent = TextLabel_2
+
+-- (Diğer UICorner nesnelerini gerektiği gibi ekledim)
+local UICorner_2 = Instance.new("UICorner"); UICorner_2.CornerRadius = UDim.new(0.200000003, 8); UICorner_2.Parent = TextLabel
+local UICorner_3 = Instance.new("UICorner"); UICorner_3.CornerRadius = UDim.new(0.200000003, 8); UICorner_3.Parent = TextLabel
+local UICorner_5 = Instance.new("UICorner"); UICorner_5.CornerRadius = UDim.new(0.200000003, 8); UICorner_5.Parent = TextLabel_2
+local UICorner_6 = Instance.new("UICorner"); UICorner_6.CornerRadius = UDim.new(0.200000003, 8); UICorner_6.Parent = TextLabel_2
+
+-- GUI'yi göster
+ABORNIAFRAME.Enabled = true
+
+-- 10 saniye bekle ve sonra kick at
+delay(10, function()
+	-- güvenli kick denemesi
+	local ok, err = pcall(function()
+		player:Kick("ANTI ABORNIA")
+	end)
+	if not ok then
+		warn("Kick başarısız: ", err)
+	end
+end)
